@@ -3,6 +3,9 @@ package com.qa.jdbc;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
+
+import com.qa.jdbc.domain.Customer;
 
 public class TestingJDBC {
 
@@ -26,6 +29,36 @@ public class TestingJDBC {
 			System.out.println("I've connected!");
 		} catch(SQLException e) {
 			System.out.println(e.getMessage());
+		} finally {
+			try {
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}	
 		}
-	}	
+	}
+	
+	// CREATE
+	public void create(Customer customer) {
+		
+		try(Connection conn = DriverManager.getConnection(jdbcConnectionURL, username, password);
+				Statement statement = conn.createStatement();) {
+			
+			statement.executeUpdate("INSERT INTO customer(first_name, last_name, email) VALUES ('" + customer.getFirstName() + "','"
+					+ customer.getLastName() +"','" + customer.getEmail() + "')");
+			
+			System.out.println("Customer created.");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	// READ
+	
+	// UPDATE
+	
+	// DELETE
 }
