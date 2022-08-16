@@ -60,7 +60,7 @@ public class TestingJDBC {
 
 	}
 
-	public void createPrepared(Customer customer) {
+	public Customer createPrepared(Customer customer) {
 
 		try (Connection conn = DriverManager.getConnection(jdbcConnectionURL, username, password);
 				PreparedStatement statement = conn
@@ -70,12 +70,14 @@ public class TestingJDBC {
 			statement.setString(2, customer.getLastName());
 			statement.setString(3, customer.getEmail());
 			statement.executeUpdate();
-
-			System.out.println("Customer created.");
+			System.out.println("Customer created:");
+			
+			return readLatest();
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
+		return null;
 	}
 
 	// MODEL FROM RESULTSET METHOD
@@ -90,31 +92,31 @@ public class TestingJDBC {
 
 	// READ
 	public List<Customer> readAll() {
-		
-		try(Connection conn = DriverManager.getConnection(jdbcConnectionURL, username, password);
+
+		try (Connection conn = DriverManager.getConnection(jdbcConnectionURL, username, password);
 				Statement statement = conn.createStatement();
 				ResultSet resultSet = statement.executeQuery("SELECT * from customer")) {
-			
+
 			List<Customer> customers = new ArrayList<>();
-			
-			while(resultSet.next()) {
+
+			while (resultSet.next()) {
 				customers.add(customerFromResultSet(resultSet));
 			}
-			
+
 			return customers;
-			
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		return null;
 	}
-	
+
 	public Customer readById(int id) {
 
 		try (Connection conn = DriverManager.getConnection(jdbcConnectionURL, username, password);
 				PreparedStatement statement = conn.prepareStatement("SELECT * FROM customer WHERE id = ?")) {
-			
+
 			statement.setInt(1, id);
 			ResultSet resultSet = statement.executeQuery();
 			resultSet.next();
@@ -125,8 +127,51 @@ public class TestingJDBC {
 
 		return null;
 	}
-	
+
+	public Customer readLatest() {
+		try (Connection conn = DriverManager.getConnection(jdbcConnectionURL, username, password);
+				Statement statement = conn.createStatement();
+				ResultSet resultSet = statement.executeQuery("SELECT * FROM customer ORDER BY id DESC LIMIT 1");) {
+			resultSet.next();
+			return customerFromResultSet(resultSet);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	// UPDATE
+	public Customer update(Customer customer) {
+
+		try (Connection conn = DriverManager.getConnection(jdbcConnectionURL, username, password);
+				PreparedStatement statement = conn.prepareStatement(
+						"UPDATE customer SET first_name = ?, last_name = ?, email = ? WHERE id = ?")) {
+
+			statement.setString(1, customer.getFirstName());
+			statement.setString(2, customer.getLastName());
+			statement.setString(3, customer.getEmail());
+			statement.setInt(4, customer.getId());
+			statement.executeUpdate();
+			System.out.println("Customer updated:");
+			
+			return readById(customer.getId());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	// DELETE
+	// DELETE STATEMENT
+	public void delete(int id) {
+		try (Connection conn = DriverManager.getConnection(jdbcConnectionURL, username, password);
+				PreparedStatement statement = conn.prepareStatement("DELETE FROM customer WHERE id = ?")) {
+
+			statement.setInt(1, id);
+			statement.executeUpdate();
+			System.out.println("delete successful");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }

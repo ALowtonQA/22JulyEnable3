@@ -11,16 +11,22 @@ public class Runner {
 		
 //		myJDBC.testConnection();
 
-		Customer anoush = new Customer("Anoush", "Lowton", "alowton2@qa.com");
+//		Customer entry = new Customer("Tom", "Smith", "randomEmail@qa.com");
 		
-//		myJDBC.create(anoush);
-//		myJDBC.createPrepared(anoush);
+//		myJDBC.create(entry);
 		
-		System.out.println(myJDBC.readById(1));
-		
-		for (Customer customer : myJDBC.readAll())  {
-			System.out.println(customer);
-		}
-		
+//		System.out.println(myJDBC.createPrepared(entry));
+//		
+//		System.out.println(myJDBC.readById(1));
+//		
+//		for (Customer customer : myJDBC.readAll())  {
+//			System.out.println(customer);
+//		}
+//		
+		Customer update = new Customer(1, "Anoush", "Lowton", "AnotherEmail@email.com");
+	
+		System.out.println(myJDBC.update(update));
+//		
+//		myJDBC.delete(3);
 	}	
 }
