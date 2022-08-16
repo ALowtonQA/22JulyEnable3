@@ -2,6 +2,7 @@ package com.qa.jdbc;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -13,21 +14,21 @@ public class TestingJDBC {
 	String jdbcConnectionURL;
 	String username;
 	String password;
-	
+
 	public TestingJDBC(String jdbcConnectionURL, String username, String password) {
 		this.jdbcConnectionURL = jdbcConnectionURL;
 		this.username = username;
 		this.password = password;
 	}
-	
+
 	public void testConnection() {
 		Connection conn = null;
-		
+
 		try {
 			System.out.println("Trying database connection...");
 			conn = DriverManager.getConnection(jdbcConnectionURL, username, password);
 			System.out.println("I've connected!");
-		} catch(SQLException e) {
+		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		} finally {
 			try {
@@ -36,29 +37,46 @@ public class TestingJDBC {
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
-			}	
+			}
 		}
 	}
-	
+
 	// CREATE
 	public void create(Customer customer) {
-		
-		try(Connection conn = DriverManager.getConnection(jdbcConnectionURL, username, password);
+
+		try (Connection conn = DriverManager.getConnection(jdbcConnectionURL, username, password);
 				Statement statement = conn.createStatement();) {
-			
-			statement.executeUpdate("INSERT INTO customer(first_name, last_name, email) VALUES ('" + customer.getFirstName() + "','"
-					+ customer.getLastName() +"','" + customer.getEmail() + "')");
+
+			statement.executeUpdate("INSERT INTO customer(first_name, last_name, email) VALUES ('"
+					+ customer.getFirstName() + "','" + customer.getLastName() + "','" + customer.getEmail() + "')");
+
+			System.out.println("Customer created.");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public void createPrepared(Customer customer) {
+
+		try (Connection conn = DriverManager.getConnection(jdbcConnectionURL, username, password);
+				PreparedStatement statement = conn.prepareStatement("INSERT INTO customer (first_name, last_name, email) VALUES (?,?,?)")) {
+
+			statement.setString(1, customer.getFirstName());
+			statement.setString(2, customer.getLastName());
+			statement.setString(3, customer.getEmail());
+			statement.executeUpdate();
 			
 			System.out.println("Customer created.");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	// READ
-	
+
 	// UPDATE
-	
+
 	// DELETE
 }

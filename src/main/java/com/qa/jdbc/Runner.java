@@ -5,7 +5,7 @@ import com.qa.jdbc.domain.Customer;
 public class Runner {
 
 	public static void main(String[] args) {
-		TestingJDBC myJDBC = new TestingJDBC("jdbc:mysql://localhost:3306/julyenabledb", "root", "root");
+		TestingJDBC myJDBC = new TestingJDBC("jdbc:mysql://localhost:3306/julyenabledb", "root", "xoyo123!!!");
 		
 //		myJDBC.testConnection();
 
