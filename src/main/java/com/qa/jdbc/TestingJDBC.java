@@ -3,8 +3,11 @@ package com.qa.jdbc;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.qa.jdbc.domain.Customer;
 
@@ -60,13 +63,14 @@ public class TestingJDBC {
 	public void createPrepared(Customer customer) {
 
 		try (Connection conn = DriverManager.getConnection(jdbcConnectionURL, username, password);
-				PreparedStatement statement = conn.prepareStatement("INSERT INTO customer (first_name, last_name, email) VALUES (?,?,?)")) {
+				PreparedStatement statement = conn
+						.prepareStatement("INSERT INTO customer (first_name, last_name, email) VALUES (?,?,?)")) {
 
 			statement.setString(1, customer.getFirstName());
 			statement.setString(2, customer.getLastName());
 			statement.setString(3, customer.getEmail());
 			statement.executeUpdate();
-			
+
 			System.out.println("Customer created.");
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -74,8 +78,54 @@ public class TestingJDBC {
 
 	}
 
-	// READ
+	// MODEL FROM RESULTSET METHOD
+	public Customer customerFromResultSet(ResultSet resultSet) throws SQLException {
+		int id = resultSet.getInt("id");
+		String firstName = resultSet.getString("first_name");
+		String lastName = resultSet.getString("last_name");
+		String email = resultSet.getString("email");
 
+		return new Customer(id, firstName, lastName, email);
+	}
+
+	// READ
+	public List<Customer> readAll() {
+		
+		try(Connection conn = DriverManager.getConnection(jdbcConnectionURL, username, password);
+				Statement statement = conn.createStatement();
+				ResultSet resultSet = statement.executeQuery("SELECT * from customer")) {
+			
+			List<Customer> customers = new ArrayList<>();
+			
+			while(resultSet.next()) {
+				customers.add(customerFromResultSet(resultSet));
+			}
+			
+			return customers;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	public Customer readById(int id) {
+
+		try (Connection conn = DriverManager.getConnection(jdbcConnectionURL, username, password);
+				PreparedStatement statement = conn.prepareStatement("SELECT * FROM customer WHERE id = ?")) {
+			
+			statement.setInt(1, id);
+			ResultSet resultSet = statement.executeQuery();
+			resultSet.next();
+			return customerFromResultSet(resultSet);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+	
 	// UPDATE
 
 	// DELETE
